@@ -1,0 +1,26 @@
+# Terraform / OpenTofu
+**/.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
+.terraform.lock.hcl
+
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+.env
+venv/
+
+# AWS credentials — never commit these
+*.pem
+*.key
+credentials
+
+# Spark
+derby.log
+metastore_db/
+
+# OS
+.DS_Store
+Thumbs.db
