@@ -1,0 +1,69 @@
+# infra/PLANNING_CHECKPOINT.yml
+#
+# Machine-readable record of deferred and pending infrastructure
+# decisions for Cerberus. Any future planning session (Opus plan mode,
+# a new Claude Code session, or a human reviewing the repo cold) MUST
+# read this file before proposing new infra/ or platform/ changes.
+
+deferred_decisions:
+  - id: airflow-orchestration
+    adr: docs/adr/009-defer-orchestration.md
+    status: deferred
+    decided_on: "2026-06-20"
+    summary: >
+      Airflow (self-hosted or MWAA) is deferred. Pipeline runs are manual
+      via spark-submit against EMR Serverless. No scheduler exists.
+    trigger_conditions:
+      - condition: pipeline_manual_run_count_exceeds
+        threshold: 10
+        description: >
+          Bronze->silver->gold has been run manually 10+ times without
+          issue, suggesting the pipeline logic is stable enough to
+          automate.
+      - condition: second_dataset_added
+        threshold: true
+        description: >
+          A second dataset is added to the project, creating a genuine
+          multi-pipeline scheduling need.
+      - condition: manual_runs_per_session_exceeds
+        threshold: 3
+        description: >
+          Manual invocation happens more than 3x in a single learning
+          session, meaning the manual step itself has become friction.
+    when_triggered:
+      action: >
+        Re-open ADR 009 status to "under review". Propose either a small
+        nightly-stopped EC2 running self-hosted Airflow, or re-evaluate
+        MWAA pricing in case AWS has changed its billing model.
+      do_not: >
+        Do not silently add orchestration back without updating this
+        file and ADR 009's status.
+
+open_dependencies:
+  - id: iam-roles-for-serverless
+    adr: docs/adr/008-iam-for-serverless.md
+    status: unresolved
+    summary: >
+      EMR Serverless and Athena need execution/service roles.
+      cerberus-cli (per ADR 003) cannot create IAM roles. Resolution
+      path not yet decided — must be resolved before infra/*.tf for
+      EMR Serverless or Athena is written.
+
+active_architecture:
+  compute_engine: emr_serverless
+  query_engine: athena
+  catalog: glue_data_catalog
+  orchestration: none (manual spark-submit)
+  storage: s3
+  table_format: iceberg
+  observability: cloudwatch
+  rationale_docs:
+    - docs/adr/001-initial-platform-oss-on-ec2.md
+    - docs/adr/004-compute-bottleneck-discovered.md
+    - docs/adr/005-pivot-to-serverless-compute.md
+    - docs/adr/006-query-engine-athena.md
+    - docs/adr/007-observability-cloudwatch.md
+    - docs/adr/008-iam-for-serverless.md
+    - docs/adr/009-defer-orchestration.md
+
+last_reviewed: "2026-06-20"
