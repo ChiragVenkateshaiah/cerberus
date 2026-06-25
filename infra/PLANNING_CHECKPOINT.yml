@@ -42,12 +42,13 @@ deferred_decisions:
 open_dependencies:
   - id: iam-roles-for-serverless
     adr: docs/adr/008-iam-for-serverless.md
-    status: unresolved
+    status: resolved
+    resolved_by: docs/adr/010-provisioning-runtime-identity-separation.md
     summary: >
-      EMR Serverless and Athena need execution/service roles.
-      cerberus-cli (per ADR 003) cannot create IAM roles. Resolution
-      path not yet decided — must be resolved before infra/*.tf for
-      EMR Serverless or Athena is written.
+      EMR Serverless and Athena execution roles are created and managed by
+      cerberus-admin via Tofu (Path B from ADR 008). cerberus-cli cannot
+      create IAM roles and does not need to; cerberus-admin handles all
+      provisioning. See ADR 010 for the full identity-separation rationale.
 
 active_architecture:
   compute_engine: emr_serverless
@@ -57,6 +58,10 @@ active_architecture:
   storage: s3
   table_format: iceberg
   observability: cloudwatch
+  iam_identities:
+    provisioning: cerberus-admin (AWS CLI profile cerberus-admin)
+    runtime: cerberus-cli (AWS CLI profile cerberus)
+    separation_rationale: docs/adr/010-provisioning-runtime-identity-separation.md
   rationale_docs:
     - docs/adr/001-initial-platform-oss-on-ec2.md
     - docs/adr/004-compute-bottleneck-discovered.md
@@ -65,5 +70,6 @@ active_architecture:
     - docs/adr/007-observability-cloudwatch.md
     - docs/adr/008-iam-for-serverless.md
     - docs/adr/009-defer-orchestration.md
+    - docs/adr/010-provisioning-runtime-identity-separation.md
 
 last_reviewed: "2026-06-20"
