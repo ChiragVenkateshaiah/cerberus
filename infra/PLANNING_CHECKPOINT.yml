@@ -58,6 +58,10 @@ active_architecture:
   storage: s3
   table_format: iceberg
   observability: cloudwatch
+  iac_tool: opentofu
+  state_layering: layered (00-foundation/10-iam/20-compute)
+  cross_stack_contract: ssm_parameter_store
+  future_evolution: oidc_federation_when_ci_exists
   iam_identities:
     provisioning: cerberus-admin (AWS CLI profile cerberus-admin)
     runtime: cerberus-cli (AWS CLI profile cerberus)
@@ -71,5 +75,7 @@ active_architecture:
     - docs/adr/008-iam-for-serverless.md
     - docs/adr/009-defer-orchestration.md
     - docs/adr/010-provisioning-runtime-identity-separation.md
+    - docs/adr/011-full-iac-ownership-and-bootstrap-boundary.md
+    - docs/adr/012-layered-remote-state.md
 
 last_reviewed: "2026-06-20"
