@@ -39,12 +39,12 @@ long-lived provisioning access keys anywhere.
 ### The trust policy is the security boundary
 
 The role trust policies condition on the GitHub OIDC `sub` claim, and that condition is
-load-bearing. A `sub` scoped too broadly (e.g. `repo:ChiragVenkateshaiah/cerberus-platform:*`) would let
+load-bearing. A `sub` scoped too broadly (e.g. `repo:ChiragVenkateshaiah/cerberus:*`) would let
 any branch or any pull request assume the role. The conditions are tight:
 
-- `cerberus-ci-apply` trusts only `repo:ChiragVenkateshaiah/cerberus-platform:ref:refs/heads/main`
+- `cerberus-ci-apply` trusts only `repo:ChiragVenkateshaiah/cerberus:ref:refs/heads/main`
   (and, once `prod` exists, a GitHub Environment condition gating it further).
-- `cerberus-ci-plan` trusts `repo:ChiragVenkateshaiah/cerberus-platform:pull_request`.
+- `cerberus-ci-plan` trusts `repo:ChiragVenkateshaiah/cerberus:pull_request`.
 - The `aud` claim is pinned to `sts.amazonaws.com`.
 
 A widened `sub` condition is treated as a security change requiring explicit review, exactly

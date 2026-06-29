@@ -57,8 +57,8 @@ error. This is the most failure-prone step of the week. Budget 30 extra minutes 
 verify the trust with a throwaway test workflow run before building anything on top of it.
 
 The exact `sub` values for this repo:
-- `cerberus-ci-plan`: `repo:ChiragVenkateshaiah/cerberus-platform:pull_request`
-- `cerberus-ci-apply`: `repo:ChiragVenkateshaiah/cerberus-platform:ref:refs/heads/main`
+- `cerberus-ci-plan`: `repo:ChiragVenkateshaiah/cerberus:pull_request`
+- `cerberus-ci-apply`: `repo:ChiragVenkateshaiah/cerberus:ref:refs/heads/main`
 
 **2. `plan.yml` requires explicit `id-token: write` permission**
 

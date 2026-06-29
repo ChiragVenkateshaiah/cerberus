@@ -147,7 +147,7 @@ Trust policy:
     "Condition": {
       "StringEquals": {
         "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
-        "token.actions.githubusercontent.com:sub": "repo:ChiragVenkateshaiah/cerberus-platform:pull_request"
+        "token.actions.githubusercontent.com:sub": "repo:ChiragVenkateshaiah/cerberus:pull_request"
       }
     }
   }]
@@ -161,7 +161,7 @@ Permissions: `ReadOnlyAccess` managed policy + inline `ssm:GetParameter*` on
 
 Same trust policy structure, but `sub`:
 ```
-"repo:ChiragVenkateshaiah/cerberus-platform:ref:refs/heads/main"
+"repo:ChiragVenkateshaiah/cerberus:ref:refs/heads/main"
 ```
 
 Permissions: broad provisioning (S3, Glue, EMR Serverless, Athena, States, EventBridge,
