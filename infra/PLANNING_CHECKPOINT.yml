@@ -8,36 +8,16 @@
 deferred_decisions:
   - id: airflow-orchestration
     adr: docs/adr/009-defer-orchestration.md
-    status: deferred
+    status: superseded
     decided_on: "2026-06-20"
+    superseded_by: docs/adr/017-step-functions-orchestration.md
+    superseded_on: "2026-06-29"
     summary: >
-      Airflow (self-hosted or MWAA) is deferred. Pipeline runs are manual
-      via spark-submit against EMR Serverless. No scheduler exists.
-    trigger_conditions:
-      - condition: pipeline_manual_run_count_exceeds
-        threshold: 10
-        description: >
-          Bronze->silver->gold has been run manually 10+ times without
-          issue, suggesting the pipeline logic is stable enough to
-          automate.
-      - condition: second_dataset_added
-        threshold: true
-        description: >
-          A second dataset is added to the project, creating a genuine
-          multi-pipeline scheduling need.
-      - condition: manual_runs_per_session_exceeds
-        threshold: 3
-        description: >
-          Manual invocation happens more than 3x in a single learning
-          session, meaning the manual step itself has become friction.
-    when_triggered:
-      action: >
-        Re-open ADR 009 status to "under review". Propose either a small
-        nightly-stopped EC2 running self-hosted Airflow, or re-evaluate
-        MWAA pricing in case AWS has changed its billing model.
-      do_not: >
-        Do not silently add orchestration back without updating this
-        file and ADR 009's status.
+      Airflow (self-hosted or MWAA) was deferred due to idle billing cost.
+      ADR 017 resolves the deferral by adopting AWS Step Functions (Standard)
+      + EventBridge Scheduler — pay-per-state-transition, zero idle cost.
+      The trigger condition ADR 009 was waiting for (no-idle-cost orchestrator)
+      is satisfied. ADR 009 status updated to "Superseded by ADR 017".
 
 open_dependencies:
   - id: iam-roles-for-serverless
@@ -46,26 +26,34 @@ open_dependencies:
     resolved_by: docs/adr/010-provisioning-runtime-identity-separation.md
     summary: >
       EMR Serverless and Athena execution roles are created and managed by
-      cerberus-admin via Tofu (Path B from ADR 008). cerberus-cli cannot
-      create IAM roles and does not need to; cerberus-admin handles all
-      provisioning. See ADR 010 for the full identity-separation rationale.
+      the CI provisioning role (cerberus-ci-apply) via Tofu (Path B from
+      ADR 008). cerberus-cli cannot create IAM roles and does not need to.
+      See ADR 010 for identity-separation rationale; ADR 014 for the OIDC
+      evolution that replaced cerberus-admin's static keys.
 
 active_architecture:
   compute_engine: emr_serverless
   query_engine: athena
   catalog: glue_data_catalog
-  orchestration: none (manual spark-submit)
+  orchestration: step_functions_standard + eventbridge_scheduler
   storage: s3
   table_format: iceberg
   observability: cloudwatch
   iac_tool: opentofu
-  state_layering: layered (00-foundation/10-iam/20-compute)
-  cross_stack_contract: ssm_parameter_store
-  future_evolution: oidc_federation_when_ci_exists
+  iac_layout: modules + envs/{dev,prod}/<stack> (ADR 013)
+  state_layering: layered (00-foundation/10-iam/20-compute/30-orchestration)
+  cross_stack_contract: ssm_parameter_store (/cerberus/<env>/<layer>/<resource>-arn)
+  cicd: github_actions (plan-on-PR, apply-on-merge — ADR 015)
+  provisioning_auth: oidc_federation (cerberus-ci-plan + cerberus-ci-apply — ADR 014)
+  policy_as_code: tflint + trivy + conftest/OPA + terraform-docs + tofu-test (ADR 016)
+  data_quality: pydeequ_gates_between_medallion_layers (ADR 018)
+  cost_governance: budgets + cost_anomaly_detection + athena_bytes_cap + emr_max_capacity (ADR 019)
   iam_identities:
-    provisioning: cerberus-admin (AWS CLI profile cerberus-admin)
-    runtime: cerberus-cli (AWS CLI profile cerberus)
+    provisioning: cerberus-ci-apply (OIDC role assumed by GitHub Actions — ADR 014)
+    provisioning_plan: cerberus-ci-plan (OIDC role, read-only, PR runs — ADR 014)
+    runtime: cerberus-cli (AWS CLI profile cerberus — ADR 010)
     separation_rationale: docs/adr/010-provisioning-runtime-identity-separation.md
+    static_admin_keys: none (retired by ADR 014)
   rationale_docs:
     - docs/adr/001-initial-platform-oss-on-ec2.md
     - docs/adr/004-compute-bottleneck-discovered.md
@@ -73,9 +61,16 @@ active_architecture:
     - docs/adr/006-query-engine-athena.md
     - docs/adr/007-observability-cloudwatch.md
     - docs/adr/008-iam-for-serverless.md
-    - docs/adr/009-defer-orchestration.md
-    - docs/adr/010-provisioning-runtime-identity-separation.md
+    - docs/adr/009-defer-orchestration.md         # superseded by 017
+    - docs/adr/010-provisioning-runtime-identity-separation.md  # auth portion superseded by 014
     - docs/adr/011-full-iac-ownership-and-bootstrap-boundary.md
     - docs/adr/012-layered-remote-state.md
+    - docs/adr/013-multi-environment-layout.md
+    - docs/adr/014-oidc-federation-ci-provisioning.md
+    - docs/adr/015-github-actions-cicd.md
+    - docs/adr/016-policy-as-code-iac-testing.md
+    - docs/adr/017-step-functions-orchestration.md
+    - docs/adr/018-data-quality-pydeequ.md
+    - docs/adr/019-cost-governance.md
 
-last_reviewed: "2026-06-20"
+last_reviewed: "2026-06-29"

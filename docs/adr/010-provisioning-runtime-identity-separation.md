@@ -1,6 +1,6 @@
 # ADR 010 — Separation of Provisioning Identity from Runtime Identity
 
-**Status:** Accepted — extends ADR 003; see ADR 011 (IaC ownership and bootstrap boundary), ADR 012 (stack layering)
+**Status:** Accepted (partially superseded) — extends ADR 003; authentication portion (Sub-decision A) superseded by ADR 014; identity-separation principle and Sub-decision B remain in force; see ADR 011, ADR 012
 **Date:** 2026-06-25
 
 ---

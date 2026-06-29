@@ -1,6 +1,6 @@
 # ADR 009 — Defer Orchestration: Airflow and MWAA Both Deferred
 
-**Status:** Accepted (deferral)
+**Status:** Superseded by ADR 017
 **Date:** 2026-06-20
 
 ---
