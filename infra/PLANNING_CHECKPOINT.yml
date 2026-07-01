@@ -56,6 +56,8 @@ active_architecture:
     static_admin_keys: none (retired by ADR 014)
   rationale_docs:
     - docs/adr/001-initial-platform-oss-on-ec2.md
+    - docs/adr/002-storage-s3-iceberg.md
+    - docs/adr/003-iam-boundary.md
     - docs/adr/004-compute-bottleneck-discovered.md
     - docs/adr/005-pivot-to-serverless-compute.md
     - docs/adr/006-query-engine-athena.md

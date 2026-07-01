@@ -379,6 +379,36 @@ resource "aws_ssm_parameter" "glue_database_arn" {
   type  = "String"
   value = aws_glue_catalog_database.lakehouse.arn
 }
+
+# Bare bucket names — Spark s3:// paths and Glue references need the
+# name, not the ARN. ARNs above cover IAM policies.
+resource "aws_ssm_parameter" "bronze_bucket_name" {
+  name  = "/cerberus/dev/foundation/bronze-bucket-name"
+  type  = "String"
+  value = module.bronze.bucket_id
+}
+resource "aws_ssm_parameter" "silver_bucket_name" {
+  name  = "/cerberus/dev/foundation/silver-bucket-name"
+  type  = "String"
+  value = module.silver.bucket_id
+}
+resource "aws_ssm_parameter" "gold_bucket_name" {
+  name  = "/cerberus/dev/foundation/gold-bucket-name"
+  type  = "String"
+  value = module.gold.bucket_id
+}
+resource "aws_ssm_parameter" "scripts_bucket_name" {
+  name  = "/cerberus/dev/foundation/scripts-bucket-name"
+  type  = "String"
+  value = module.scripts.bucket_id
+}
+
+# Full results-location URI — Athena workgroup config needs this form.
+resource "aws_ssm_parameter" "athena_results_s3_uri" {
+  name  = "/cerberus/dev/foundation/athena-results-s3-uri"
+  type  = "String"
+  value = "s3://${module.athena_results.bucket_id}/"
+}
 ```
 
 ### `.github/workflows/plan.yml`
